@@ -2,8 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <imgui.h>
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "external/imgui/imgui_impl_glfw.h"
+#include "external/imgui/imgui_impl_opengl3.h"
 
 GLFWwindow* WINDOW;
 
@@ -14,7 +14,7 @@ int main(void)
         std::exit(-1);
     }
 
-    WINDOW = glfwCreateWindow(600, 800, "Particle-based simulation", NULL, NULL);
+    WINDOW = glfwCreateWindow(800, 600, "Particle-based simulation", NULL, NULL);
     if (!WINDOW)
     {
         glfwTerminate();

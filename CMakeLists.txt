@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(particle_simulator)
 
 # Specify the source files
-file(GLOB SOURCES CONFIGURE_DEPENDS "src/*.h" "src/*.cpp")
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES})
