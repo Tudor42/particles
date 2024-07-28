@@ -1,7 +1,7 @@
 #pragma once
+#include <Eigen/Dense>
 
 namespace math {
-    #include <Eigen/Dense>
 
     #ifdef USE_DOUBLE
     typedef double Real;

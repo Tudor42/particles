@@ -2,13 +2,16 @@
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <imgui.h>
-#include "external/imgui/imgui_impl_glfw.h"
-#include "external/imgui/imgui_impl_opengl3.h"
+#include "extern/imgui/imgui_impl_glfw.h"
+#include "extern/imgui/imgui_impl_opengl3.h"
+#include "utils/NeighborhoodSearch.h"
+#include "utils/errors.h"
 
 GLFWwindow* WINDOW;
 
 int main(void)
 {
+    ASSERT(true);
     if (!glfwInit())
     {
         std::exit(-1);
