@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.5)
 project(particle_simulator)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -24,12 +24,17 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 find_package(GLEW REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
-find_package(Eigen3 CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw GLEW::GLEW imgui::imgui Eigen3::Eigen assimp::assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw GLEW::GLEW imgui::imgui glm assimp::assimp)
 
 add_dependencies(${PROJECT_NAME} Ext_NeighborhoodSearch)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${NEIGHBORHOOD_SEARCH_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PUBLIC INTERFACE ${NEIGHBORHOOD_SEARCH_LIBRARIES})
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/resources $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources)
+

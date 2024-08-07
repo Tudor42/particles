@@ -2,7 +2,7 @@
     "name": "particle-simulator",
     "version": "1.0.0",
     "dependencies": [
-        "glew", "glfw3", "eigen3", "imgui", "assimp"
+        "glew", "glfw3", "glm", "imgui", "assimp"
     ],
     "builtin-baseline": "3426db05b996481ca31e95fff3734cf23e0f51bc", 
     "overrides": [
@@ -13,10 +13,6 @@
         {
             "name": "glfw3",
             "version": "3.3.2"
-        },
-        {
-            "name": "eigen3",
-            "version": "3.3.9"
         },
         {
             "name": "imgui",

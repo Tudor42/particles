@@ -16,7 +16,7 @@ namespace gui {
         
         void createAttribute(const std::string &attribute);
 		void createUniform(const std::string &uniform);
-		bool isInitialized();
+		bool isInitialized() { return m_initialized; }
 
 		void bind();
 		void unbind();
