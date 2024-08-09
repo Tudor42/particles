@@ -1,53 +1,36 @@
 #include "./application.h"
 #include "gui/OpenGL/Shader.h"
 #include <glm/glm.hpp>
-#include "gui/OpenGL/IndexBuffer.h"
-#include "gui/OpenGL/VertexArray.h"
-#include "gui/OpenGL/VertexBuffer.h"
+#include <glm/gtc/type_ptr.hpp>
+#include "simulation/models/BoxBoundary.h"
+#include "gui/Renderer2d.h"
+#include "simulation/Simulation.h"
 
 Application *Application::instance = nullptr;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void mouse_move_callback(GLFWwindow* window, double xMousePos, double yMousePos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void Application::run() {
-    gui::VertexArray vertexArray;
-    float vertices[3 * 7] = {
-		-0.5f, -0.5f, 0.0f, 1.f, 0.f, 0.f, 1.0f,
-		 0.5f, -0.5f, 0.0f, 0.f, 1.f, 0.f, 1.0f,
-		 0.0f,  0.5f, 0.0f, 0.f, 0.f, 1.f, 1.0f
-	};
-    gui::VertexBuffer vertexBuffer(vertices, sizeof(vertices));
-    vertexBuffer.set_layout({
-        { gui::ShaderDataType::Float3, "a_Position" },
-		{ gui::ShaderDataType::Float4, "a_Color" }
-    });
-    vertexArray.add_vertex_buffer(vertexBuffer);
+    BoxBoundary::lowerBoundary = glm::vec3(-50., -50., 0);
+    BoxBoundary::upperBoundary = glm::vec3(50, 50, 0);
+    Renderer2d::initShaders("resources/shaders");
 
-    unsigned int indices[3] = { 0, 1, 2 };
-
-    gui::IndexBuffer indexBuffer;
-    indexBuffer.set_data(indices, 3);
-    vertexArray.set_index_buffer(indexBuffer);
-
-    gui::Shader shader;
-    shader.compileShaderFile(GL_FRAGMENT_SHADER, "resources/shaders/testshader.frag");
-    shader.compileShaderFile(GL_VERTEX_SHADER, "resources/shaders/testshader.vert");
-    shader.createAndLinkProgram();
-    
     while (!glfwWindowShouldClose(m_window)) {
         double currentTime = glfwGetTime();
        
         if (currentTime - m_lastTime >= 1.0/60.0){
-            glfwPollEvents();
+            Simulation::step();
 
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            Renderer2d::renderBoundingBox();
             
-            shader.bind();
-            vertexArray.bind();
-            glDrawArrays(GL_TRIANGLES, 0, 3);
-
             glfwSwapBuffers(m_window);
 
+            glfwPollEvents();
             m_lastTime = currentTime;
         }
     }
@@ -55,6 +38,7 @@ void Application::run() {
 
 void Application::closeWindow() {
     glfwSetWindowShouldClose(m_window, 1);
+    delete Application::instance;
 }
 
 Application::Application(int width, int height) {
@@ -78,22 +62,40 @@ Application::Application(int width, int height) {
     glfwMakeContextCurrent(m_window);
     glewInit();
     
+    // Setting callbacks
 	glfwGetFramebufferSize(m_window, &m_width, &m_height);
     glViewport(0, 0, m_width, m_height);
-	glfwSetWindowUserPointer(m_window, this);
 	glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
-    //glClearColor(CLEAR_COLOR);
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    //glEnable(GL_POINT_SPRITE);
-}
+    glfwSetScrollCallback(m_window, scroll_callback);
+    glfwSetKeyCallback(m_window, key_callback);
+    glfwSetMouseButtonCallback(m_window, mouse_button_callback);
+    glfwSetCursorPosCallback(m_window, mouse_move_callback);
 
-Application::~Application() {
-    glfwTerminate();
+
+    Camera2D::setHeight(m_height);
+    Camera2D::setWidth(m_width);
+    // glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    Application* app = static_cast<Application*>(glfwGetWindowUserPointer(window));
-    if (app) {
-        app->onFramebufferSizeChanged(width, height);
-    }
+    Application::getInstance()->onFramebufferSizeChanged(width, height);
+    Camera2D::setHeight(height);
+    Camera2D::setWidth(width);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    Camera2D::zoom(yoffset * 0.1);
+}
+
+void mouse_move_callback(GLFWwindow* window, double xMousePos, double yMousePos) {
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+
 }

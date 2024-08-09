@@ -40,15 +40,15 @@ namespace gui {
         glBindVertexArray(0);
     }
 
-    void VertexArray::add_vertex_buffer(VertexBuffer& vertexBuffer)
+    void VertexArray::add_vertex_buffer(std::shared_ptr<VertexBuffer>& vertexBuffer)
 	{
 
-		ASSERT(vertexBuffer.get_layout().GetElements().size() > 0, "Vertex Buffer has no layout!");
+		ASSERT(vertexBuffer->get_layout().GetElements().size() > 0, "Vertex Buffer has no layout!");
 
 		glBindVertexArray(m_RendererID);
-		vertexBuffer.bind();
+		vertexBuffer->bind();
 
-		const auto& layout = vertexBuffer.get_layout();
+		const auto& layout = vertexBuffer->get_layout();
 		for (const auto& element : layout)
 		{
 			switch (element.Type)
@@ -106,13 +106,13 @@ namespace gui {
 			}
 		}
 
-		m_VertexBuffers.push_back(&vertexBuffer);
+		m_VertexBuffers.push_back(vertexBuffer);
 	}
 
-    void VertexArray::set_index_buffer(const IndexBuffer &indexBuffer)
+    void VertexArray::set_index_buffer(const std::shared_ptr<IndexBuffer> &indexBuffer)
     {
         glBindVertexArray(m_RendererID);
-		indexBuffer.bind();
+		indexBuffer->bind();
 
 		m_IndexBuffer = indexBuffer;
     }

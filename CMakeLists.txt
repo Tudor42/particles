@@ -27,6 +27,13 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+	SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw GLEW::GLEW imgui::imgui glm assimp::assimp)
 
 add_dependencies(${PROJECT_NAME} Ext_NeighborhoodSearch)

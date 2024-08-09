@@ -21,10 +21,10 @@ void gui::IndexBuffer::set_data(const unsigned int *data, unsigned int count) {
 
 void gui::IndexBuffer::bind() const
 {
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_RendererId));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererId));
 }
 
 void gui::IndexBuffer::unbind() const
 {
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 }
