@@ -7,13 +7,14 @@
 
 class Renderer2d {
 private:
-    static gui::Shader *circleShader;
-    static gui::Shader *simple2DShader;
-    static gui::VertexArray *boundingBox;
-    static gui::VertexArray *circlesData;
+    static std::shared_ptr<gui::Shader> circleShader;
+    static std::shared_ptr<gui::Shader> simple2DShader;
+    static std::shared_ptr<gui::VertexArray> boundingBox;
+    static std::shared_ptr<gui::VertexArray> particlesData;
 public:
-    static void initShaders(const std::string &shaderPath);
+    static void init(const std::string &shaderPath);
+    static void cleanup();
 
-    static void renderFluid(FluidModel *model);
+    static void renderFluidModels();
     static void renderBoundingBox();
 };

@@ -39,7 +39,7 @@ void Camera2D::updateViewMatrix() {
     transform = glm::scale(transform, glm::vec3(m_Zoom, m_Zoom, 1.0f));
     
     // Create an orthographic projection matrix with the screen dimensions
-    glm::mat4 ortho = glm::ortho(-1.f * m_ScreenWidth / 2, 1.f * m_ScreenWidth / 2, 1.f * m_ScreenHeight / 2,  -1.f * m_ScreenHeight / 2, -1.0f, 1.0f);
+    glm::mat4 ortho = glm::ortho(-1.f * m_ScreenWidth / 2, 1.f * m_ScreenWidth / 2, -1.f * m_ScreenHeight / 2,  1.f * m_ScreenHeight / 2, -1.0f, 1.0f);
     
     m_ViewMatrix = ortho * transform;
     m_ViewMatrixNeedsUpdate = false;

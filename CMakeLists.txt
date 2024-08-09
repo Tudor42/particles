@@ -39,7 +39,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glfw GLEW::GLEW imgui::imgui glm a
 add_dependencies(${PROJECT_NAME} Ext_NeighborhoodSearch)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${NEIGHBORHOOD_SEARCH_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME} PUBLIC INTERFACE ${NEIGHBORHOOD_SEARCH_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC  ${NEIGHBORHOOD_SEARCH_LIBRARIES})
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

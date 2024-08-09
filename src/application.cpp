@@ -15,18 +15,44 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void Application::run() {
-    BoxBoundary::lowerBoundary = glm::vec3(-50., -50., 0);
-    BoxBoundary::upperBoundary = glm::vec3(50, 50, 0);
-    Renderer2d::initShaders("resources/shaders");
+    BoxBoundary::lowerBoundary = glm::vec3(-500, -500, 0);
+    BoxBoundary::upperBoundary = glm::vec3(500, 500, 0);
+    
+    Renderer2d::init("resources/shaders");
+    std::shared_ptr<FluidModel> fluidModel = FluidModel::createSquare(glm::vec2(-100, 100), glm::vec2(0, 0), 5);
+    
+    std::shared_ptr<Simulation> simulation = std::make_shared<Simulation>();
+    simulation->setSearchRadius(20);
+
+    Simulation::setCurrentInstance(simulation);
+    simulation->addFluidModel(fluidModel);
+    simulation->kernelFct = [](double r, double h) {
+        double q = r/h;
+        double alfa = 15./(7*3.141*h*h);
+        double res = 0;
+        if (q < 1) {
+            res = 2./3 - q*q + 1./2 * q * q * q; 
+        } else if (q < 2) {
+            double tmp = 2 - q;
+            res = 1./6 * tmp * tmp * tmp;
+        }
+        return alfa * res;
+    };
+
+    std::cout<<simulation->kernelFct(10, 20)<<std::endl;
+    simulation->smoothingLength = 10;
+    
 
     while (!glfwWindowShouldClose(m_window)) {
         double currentTime = glfwGetTime();
        
         if (currentTime - m_lastTime >= 1.0/60.0){
-            Simulation::step();
+            Simulation::getCurrentInstance()->step();
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
             Renderer2d::renderBoundingBox();
+            Renderer2d::renderFluidModels();
             
             glfwSwapBuffers(m_window);
 
@@ -34,11 +60,11 @@ void Application::run() {
             m_lastTime = currentTime;
         }
     }
+    Renderer2d::cleanup();
 };
 
 void Application::closeWindow() {
     glfwSetWindowShouldClose(m_window, 1);
-    delete Application::instance;
 }
 
 Application::Application(int width, int height) {
@@ -74,7 +100,7 @@ Application::Application(int width, int height) {
 
     Camera2D::setHeight(m_height);
     Camera2D::setWidth(m_width);
-    // glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_DEPTH_TEST);
 }
 
@@ -97,5 +123,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-
+    if (key == GLFW_KEY_D) {
+        Camera2D::move(glm::vec2(10, 0));
+    } else if (key == GLFW_KEY_A) {
+        Camera2D::move(glm::vec2(-10, 0));
+    } else if (key == GLFW_KEY_W) {
+        Camera2D::move(glm::vec2(0, 10));
+    } else if (key == GLFW_KEY_S) {
+        Camera2D::move(glm::vec2(0, -10));
+    }
 }
