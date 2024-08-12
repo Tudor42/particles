@@ -70,7 +70,7 @@ void Renderer2d::renderFluidModels() {
         particlesData->get_vertex_buffers()[0]->SetData(glm::value_ptr(fluidModel->getPosition(0)), fluidModel->getNumParticles() * 3 * sizeof(float));
         particlesData->get_vertex_buffers()[1]->SetData(glm::value_ptr(fluidModel->getColor(0)), fluidModel->getNumParticles() * 4 * sizeof(float));        
         
-        GLCall(glUniform1f(circleShader->getUniform("pointSize"), ((float)(Camera2D::getZoom() * fluidModel->getRadius()))));
+        GLCall(glUniform1f(circleShader->getUniform("pointSize"), ((float)(Camera2D::getZoom() * 11./12 * fluidModel->getRadius()))));
 
         GLCall(glDrawArrays(GL_POINTS, 0, fluidModel->getNumParticles()));
     }

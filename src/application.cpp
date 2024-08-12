@@ -5,8 +5,12 @@
 #include "simulation/models/BoxBoundary.h"
 #include "gui/Renderer2d.h"
 #include "simulation/Simulation.h"
+#include "simulation/solver/PCISPHSolver.h"
+#include <numbers>
 
 Application *Application::instance = nullptr;
+
+bool simulation_paused = false;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -15,40 +19,45 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 void Application::run() {
-    BoxBoundary::lowerBoundary = glm::vec3(-500, -500, 0);
-    BoxBoundary::upperBoundary = glm::vec3(500, 500, 0);
+    BoxBoundary::lowerBoundary = glm::vec3(-400, -400, 0);
+    BoxBoundary::upperBoundary = glm::vec3(600, 600, 0);
     
     Renderer2d::init("resources/shaders");
-    std::shared_ptr<FluidModel> fluidModel = FluidModel::createSquare(glm::vec2(-100, 100), glm::vec2(0, 0), 5);
+    std::shared_ptr<FluidModel> fluidModel = FluidModel::createSquare(glm::vec2(-100, 250), glm::vec2(200, -350), 3);
     
-    std::shared_ptr<Simulation> simulation = std::make_shared<Simulation>();
-    simulation->setSearchRadius(20);
+    std::shared_ptr<Simulation> simulation = std::make_shared<Simulation>(true, 9);
+    simulation->smoothingLength = 9;
 
     Simulation::setCurrentInstance(simulation);
     simulation->addFluidModel(fluidModel);
+
     simulation->kernelFct = [](double r, double h) {
-        double q = r/h;
-        double alfa = 15./(7*3.141*h*h);
-        double res = 0;
-        if (q < 1) {
-            res = 2./3 - q*q + 1./2 * q * q * q; 
-        } else if (q < 2) {
-            double tmp = 2 - q;
-            res = 1./6 * tmp * tmp * tmp;
-        }
-        return alfa * res;
+        if (r > h) return 0.;
+        float volume = (std::numbers::pi * std::pow(h, 4)) / 6;
+        return (h-r) * (h-r) / volume;
+        /*float volume =std::numbers::pi * std::pow(h, 8) / 4;
+        double value = std::max(0., h*h-r*r);
+        return value*value*value/volume;*/
     };
 
-    std::cout<<simulation->kernelFct(10, 20)<<std::endl;
-    simulation->smoothingLength = 10;
-    
+    simulation->kernelGradientFct = [](glm::vec3 rij, double h) {
+        const float rl = glm::length(rij);
+        if (rl > h) return glm::vec3(0);
+		float scale = 12./(std::pow(h, 4) * std::numbers::pi);
+        return (float)(rl-h)*scale*glm::normalize(rij);
+    };
+    //simulation->setSearchRadius(7);
 
+    simulation->setSolver(std::make_shared<PCISPHSolver>());
+    simulation->initSolver();
+    
     while (!glfwWindowShouldClose(m_window)) {
         double currentTime = glfwGetTime();
        
         if (currentTime - m_lastTime >= 1.0/60.0){
-            Simulation::getCurrentInstance()->step();
-
+            if (!simulation_paused) {
+                Simulation::getCurrentInstance()->step();
+            }
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
             Renderer2d::renderBoundingBox();
@@ -131,5 +140,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         Camera2D::move(glm::vec2(0, 10));
     } else if (key == GLFW_KEY_S) {
         Camera2D::move(glm::vec2(0, -10));
+    } else if (key == GLFW_KEY_SPACE and action == GLFW_PRESS) {
+        simulation_paused = !simulation_paused;
     }
 }
